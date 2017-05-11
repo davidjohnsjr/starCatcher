@@ -1,0 +1,31 @@
+<!-- StarCatcher Game for David's Soft Dev class 2017
+ for my student's in spring class  -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StarCatcher - Software Development</title>
+<!--    our link to the javascript file that will control the game actions -->
+    <script type="text/javascript" src="scScripts.js"></script>
+<!--    out styles will be internal until we need to move them to an external file -->
+    <style type="text/css">
+        html, body {margin: 5px;}
+        canvas {display: block;}
+        #game {
+            margin-left: auto;
+            margin-right: auto;
+            width: 800px;
+            height: 500px;
+            background-color: lightblue;
+            border-radius: 10px;
+        }
+        .centerText {text-align: center;}
+            
+    </style>
+</head>
+<body>
+    <h2 class="centerText">Game ON!</h2>
+    <div id="game">
+        <canvas id="myCanvas"></canvas>
+    </div>
+</body>
+</html>
