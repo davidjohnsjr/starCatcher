@@ -43,6 +43,44 @@ window.onload = function() {
         },
     };
 
+    var strandedShip = {
+        _x: null,
+        _y: null,
+        _xSpeed: null,
+        _ySpeed: null,
+        _visible: true,
+
+        //Create new star object with given starting position and speed
+        //class functions exist to set other private variables
+        //All inputs are double and function returns a new star
+        create: function (x, y, xSpeed, ySpeed) {
+            var obj = Object.create(this);
+            obj._x = x;
+            obj._y = y;
+            obj._xSpeed = xSpeed;
+            obj._ySpeed = ySpeed;
+            obj._width = 60;
+            obj._height = 60;
+            obj._img = new Image();
+            obj._img.src = "images/falcon.png";
+            return obj;
+        },
+        setImage: function(img){
+            this._img.src=img;
+        },
+        visible: function() {
+            return this._visible;
+        },
+
+        //Update the new x and y of the star based on the speed.
+        //drawing functionality is left for calling class
+        //no input or return
+        update: function () {
+            this._x+=this._xSpeed;
+            this._y+=this._ySpeed;
+        },
+    }; // close of strandedShip object
+
     //load canvas
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d"),
@@ -82,6 +120,9 @@ window.onload = function() {
     var starCount=10;
     var starArray=[];
 
+    var strandedShipCount = 3;
+    var strandedShipArray = [];
+
     // Create an array of stars
     for (var i = 0; i < starCount; i++) {
         // this assigns each element in the array all the information for the star by 
@@ -89,14 +130,18 @@ window.onload = function() {
         //  and speeds into the array.
         starArray.push(star.create(20,i+50,3-Math.random()*6,2-Math.random()*5));
     }
-    // using arrays to keep tract of star speeds and positions
-    starSpeed = new Array(8,3);
-    starPos = new Array();
-    var starVisible = 1;
+    // Create an array of stranded ships
+    for (var i = 0; i < strandedShipCount; i++) {
+        // this assigns each element in the array all the information for the star by 
+        // using the 'star' class, pass the starting x,y locations 
+        //  and speeds into the array.
+        strandedShipArray.push(strandedShip.create(20,i+150,3-Math.random()*6,2-Math.random()*5));
+    }
 
     // moving stars around the screen 
     var p1x=w/2+100, p1y=h/2, p2x=w/2-100, p2y=h/2;
     var gameOn = true;
+    var p1Score =0, p2Score = 0;
     
     // moving stars around the screen and update the players movement
 
@@ -112,8 +157,46 @@ window.onload = function() {
             if (starArray[i]._x<0) {starArray[i]._x = w }
             if (starArray[i]._y>h || starArray[i]._y<0) {starArray[i]._ySpeed = -starArray[i]._ySpeed}
 
-            if (Math.abs(p1x-starArray[i]._x)<20 & Math.abs(p1y-starArray[i]._y)<20) {
-                starArray[i]._visible = false;
+            var d1=Math.sqrt(Math.pow(p1x-starArray[i]._x,2)+Math.pow(p1y-starArray[i]._y,2));
+            var d2=Math.sqrt(Math.pow(p2x-starArray[i]._x,2)+Math.pow(p2y-starArray[i]._y,2));
+            if (d1<20) {scoring(i,1)}
+            if (d2<20) {scoring(i,2)}
+        }//endFor
+
+    }  // close of starsUpdate
+
+//  scoring functions to place and score stars
+    function scoring(k,wp) {
+        starArray[k]._visible=false;
+        if (wp==1) {
+            // need to place a small star next to player 1 score
+            p1Score++;
+            $("#p1ScoreDisp").text(p1Score);
+            starArray[k]._x = w +200;
+            starArray[k]._xSpeed = 0;
+        }
+        else if (wp==2) {
+            p2Score++;
+            $("#p2ScoreDisp").text(p2Score);
+            starArray[i]._x = w +200;
+            starArray[i]._xSpeed = 0;
+        }
+    } // end scoring function
+
+    function strandedShipUpdate () {
+               
+    //  draw strandedShip on screen only if visible
+        for (var i = 0; i < strandedShipCount; i++) {
+            strandedShipArray[i].update();
+            if (strandedShipArray[i].visible()) {
+                ctx.drawImage(strandedShipArray[i]._img, strandedShipArray[i]._x-strandedShipArray[i]._width/2, strandedShipArray[i]._y-strandedShipArray[i]._height/2, strandedShipArray[i]._width, strandedShipArray[i]._height);
+            }
+            if (strandedShipArray[i]._x>w) {strandedShipArray[i]._x = 0 }
+            if (strandedShipArray[i]._x<0) {strandedShipArray[i]._x = w }
+            if (strandedShipArray[i]._y>h || strandedShipArray[i]._y<0) {strandedShipArray[i]._ySpeed = -strandedShipArray[i]._ySpeed}
+
+            if (Math.abs(p1x-strandedShipArray[i]._x)<20 & Math.abs(p1y-strandedShipArray[i]._y)<20) {
+                strandedShipArray[i]._visible = false;
             }
         }//endFor
 
@@ -221,6 +304,7 @@ window.onload = function() {
         ctx.drawImage(background,0,0,w,h);
         ctx.globalAlpha = 1;
         starsUpdate();
+        strandedShipUpdate();
         playerUpdate();
         if (gameOn==1) {requestAnimationFrame(main);}
     }

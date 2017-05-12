@@ -5,7 +5,7 @@
 <head>
     <title>StarCatcher - Software Development</title>
 <!--    our link to the javascript file that will control the game actions -->
-
+    <script type="text/javascript" src="scScripts.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <!--    out styles will be internal until we need to move them to an external file -->
     <style type="text/css">
@@ -18,7 +18,6 @@
             height: 500px;
             background-color: lightblue;
             border-radius: 10px;
-            padding: 40px;
         }
         .centerText {text-align: center;}
          #leftSide {
@@ -31,19 +30,15 @@
             width: 100px;
             margin-right:20px;
         }
-        
+            
     </style>
 </head>
 <body>
     <p id="leftSide">Player 2: <span id="p1ScoreDisp">0</span></p>
     <p id="rightSide">Player 1: <span id="p2ScoreDisp">0</span></p>
-    <h2 class="centerText">Save Chewy!</h2>
+    <h2 class="centerText">Game ON!</h2>
     <div id="game">
-        <h2>Help me Save Chewy.</h2>
-        <h4> 'you are my only hope' </h4>
-        <p>Move your player to collide with the Millinnium Falcon to save Chewy. Don't hit the solar flares!<br>
-        The space button will pause the game. Player 1 uses w-a-s-d keys, Player 2 uses the arrows.</p>
-        <button onclick="window.location ='gamePage.html'">Start Game</button>
+        <canvas id="myCanvas"></canvas>
     </div>
 </body>
 </html>
