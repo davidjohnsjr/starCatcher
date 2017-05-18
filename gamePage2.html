@@ -1,0 +1,47 @@
+<!-- StarCatcher Game for David's Soft Dev class 2017
+ for my student's in spring class  -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>StarCatcher - Software Development</title>
+<!--    our link to the javascript file that will control the game actions -->
+    <script type="text/javascript" src="scripts/scScripts2.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<!--    out styles will be internal until we need to move them to an external file -->
+    <style type="text/css">
+        html, body {margin: 5px;}
+        canvas {display: block;}
+        #game {
+            margin-left: auto;
+            margin-right: auto;
+            width: 800px;
+            height: 500px;
+            background-color: lightblue;
+            border-radius: 10px;
+        }
+        .centerText {text-align: center;}
+         #leftSide {
+            float:left;
+            width: 100px;
+            margin-left:20px;
+        }
+        #rightSide {
+            float: right;
+            width: 100px;
+            margin-right:20px;
+        }
+            
+    </style>
+</head>
+<body>
+    <p id="leftSide">Player 2: <span id="p2ScoreDisp">0</span></p>
+    <p id="rightSide">Player 1: <span id="p1ScoreDisp">0</span></p>
+    <h2 class="centerText">Game ON!</h2>
+    <div id="game">
+        <canvas id="myCanvas"></canvas>
+    </div>
+    <div class="centerText">
+        <button onclick="window.location='index.html'">Quit without Saving</button>
+    </div>
+</body>
+</html>
