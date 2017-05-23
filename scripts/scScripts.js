@@ -1,7 +1,6 @@
 // StarCatcher Scripts for the game made by Soft Dev 2015
     // when the web page window loads up, the game scripts will be read
 
-var starCount=10;
 window.onload = function() {
     var star = {
         _x: null,
@@ -87,7 +86,7 @@ window.onload = function() {
     var canvas = document.getElementById("myCanvas");
     var ctx = canvas.getContext("2d"),
         w = canvas.width = 800,
-        h = canvas.height = 500;
+        h = canvas.height = 300;
 
     //load images
     //player 1
@@ -119,40 +118,55 @@ window.onload = function() {
     var background = new Image();
     background.src="images/bg.jpg";
 
+    var level = 1;
+
 // our stars are created using a single array with a class of information
+    function initArrays(Scount,Ccount) {
+        starArray=[];
+        starCount = Scount;
+        strandedShipCount = Ccount;
+        strandedShipArray = [];
+        chewyTotal = 0;
+
+        // Create an array of stars
+        for (var i = 0; i < starCount; i++) {
+            // this assigns each element in the array all the information for the star by 
+            // using the 'star' class, pass the starting x,y locations 
+            //  and speeds into the array.
+            starArray.push(star.create(20,i+2,3-Math.random()*6,2-Math.random()*5));
+        }
+        // Create an array of stranded ships
+        for (var i = 0; i < strandedShipCount; i++) {
+            // this assigns each element in the array all the information for the star by 
+            // using the 'star' class, pass the starting x,y locations 
+            //  and speeds into the array.
+            strandedShipArray.push(strandedShip.create(20,i+150,3-Math.random()*6,2-Math.random()*5));
+        }
+    } //close initArrays
+    initArrays(20, 3);
     
-    var starArray=[];
-
-    var strandedShipCount = 3;
-    var strandedShipArray = [];
-    var chewyTotal = 0;
-
-    // Create an array of stars
-    for (var i = 0; i < starCount; i++) {
-        // this assigns each element in the array all the information for the star by 
-        // using the 'star' class, pass the starting x,y locations 
-        //  and speeds into the array.
-        starArray.push(star.create(20,i+50,3-Math.random()*6,2-Math.random()*5));
-    }
-    // Create an array of stranded ships
-    for (var i = 0; i < strandedShipCount; i++) {
-        // this assigns each element in the array all the information for the star by 
-        // using the 'star' class, pass the starting x,y locations 
-        //  and speeds into the array.
-        strandedShipArray.push(strandedShip.create(20,i+150,3-Math.random()*6,2-Math.random()*5));
-    }
-
-    // moving stars around the screen 
+    // players and scores and sounds and time counter stuff
     var p1x=w/2+100, p1y=h/2, p2x=w/2-100, p2y=h/2;
     var gameOn = true;
     var p1Score =0, p2Score = 0;
     var explode = new Audio('sounds/explosion.mp3');
     var chewy = new Audio('sounds/chewy.mp3');
     var bgmusic = new Audio('sounds/roar.mp3');
-    bgmusic.volume = .3;
+    bgmusic.volume = .2;
     bgmusic.play();
-    
-    
+     // play on first .9 seconds of an audio by checking
+    // setInterval every 10 clicks.
+    function playInterval (audioObj) {
+        audioObj.currentTime = 0;
+        audioObj.play();
+        int = setInterval(function() {
+            if (audioObj.currentTime > 0.9) {
+                audioObj.pause();
+                clearInterval(int); // stops interval
+            }
+        }, 10);
+    }   // close playInterval
+   
     // moving stars around the screen and update the players movement
 
     function starsUpdate () {
@@ -185,6 +199,7 @@ window.onload = function() {
             starArray[k]._x = w +200;
             starArray[k]._xSpeed = 0;
             explode.play();
+            if (p1Score<-10) {window.location ='gameOver.html#'+p1Score+'#'+p2Score;}
         }
         else if (wp==2) {
             p2Score-=5;
@@ -193,20 +208,7 @@ window.onload = function() {
             starArray[k]._xSpeed = 0;
             explode.play();
         }
-    } // end scoring function
-
-        // play on first .9 seconds of an audio by checking
-    // setInterval every 10 clicks.
-    function playInterval (audioObj) {
-        audioObj.currentTime = 0;
-        audioObj.play();
-        int = setInterval(function() {
-            if (audioObj.currentTime > 0.9) {
-                audioObj.pause();
-                clearInterval(int); // stops interval
-            }
-        }, 10);
-    }   // close playInterval
+    } // end scoring function    
 
     function strandedShipUpdate () {
                
@@ -227,11 +229,7 @@ window.onload = function() {
                 strandedShipArray[i]._x = w+200;
                 strandedShipArray[i]._xSpeed = 0;
                 $("#p1ScoreDisp").text(p1Score);  
-                chewyTotal ++
-                if (chewyTotal==strandedShipCount) {
-                    var starCount=100;
-                    location.reload();
-                }
+                chewyTotal ++;
             }
             if (Math.abs(p2x-strandedShipArray[i]._x)<20 & Math.abs(p2y-strandedShipArray[i]._y)<20) {
                 strandedShipArray[i]._visible = false;
@@ -239,7 +237,11 @@ window.onload = function() {
                 $("#p2ScoreDisp").text(p2Score);
                 strandedShipArray[i]._x = w+200;
                 strandedShipArray[i]._xSpeed = 0;
-
+                chewyTotal ++;
+            }
+            if (chewyTotal==strandedShipCount) {
+                level++;
+                initArrays(20*level, 3*level)
             }
         }//endFor
         if (chewyTotal==strandedShipCount) {
@@ -287,14 +289,41 @@ window.onload = function() {
 
     }, false);
 
+    // timer functions and pausing timer below
+    var s = new Date();
+    var milliStart = s.getTime();
+    var timer;
+
+    function timerUpdate() {
+        d = new Date();
+        milli = d.getTime();
+        timer = (milli-milliStart)/1000.0;
+        document.getElementById("counter").innerHTML = timer;
+        if (timer>15) {
+            d = new Date();
+            milliStart = d.getTime();
+            level ++;
+            initArrays(20*level, 3*level);
+        }
+    }
+    
+
         //  player movement keyboard commands
     addEventListener("keyup", function (e) {
         // start the game with keyboard command
         if (e.keyCode == 32) {
-            if (gameOn) {gameOn=!gameOn}
-            else {
+            if (gameOn) {
                 gameOn=!gameOn;
-                main();}
+                rTime = timer;
+                bgmusic.pause();
+            }
+            else {
+                d = new Date();
+                milliStart = d.getTime()-rTime*1000.0;
+                gameOn=!gameOn;
+                bgmusic.play();
+                main();
+            }
         }//end if
 
         //take keycode out of array (not being held down anymore)
@@ -346,6 +375,7 @@ window.onload = function() {
        //Our main function which clears the screens 
     //  and redraws it all again through function updates,
     //  then calls itself out again
+    
     function main(){
         ctx.clearRect(0,0,w,h);
         ctx.globalAlpha = .3;
@@ -354,6 +384,7 @@ window.onload = function() {
         starsUpdate();
         strandedShipUpdate();
         playerUpdate();
+        timerUpdate();
         if (gameOn==1) {requestAnimationFrame(main);}
     }
     main();        
