@@ -7,6 +7,14 @@
 <!--    our link to the javascript file that will control the game actions -->
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        window.onload = function(){
+            var p1 = window.location.hash.substring(1);
+            $("#p1ScoreDisp").text(p1);
+            var p2 = window.location.hash.substring(1);
+            $("#p2ScoreDisp").text(p2);
+        }
+    </script>
 <!--    out styles will be internal until we need to move them to an external file -->
     <style type="text/css">
         html, body {margin: 5px;}
@@ -35,15 +43,11 @@
     </style>
 </head>
 <body>
-    <p id="leftSide">Player 2: <span id="p2ScoreDisp">0</span></p>
-    <p id="rightSide">Player 1: <span id="p1ScoreDisp">0</span></p>
-    <h2 class="centerText">Save Chewy!</h2>
-    <div id="game">
-        <h2>Help me Save Chewy.</h2>
-        <h4> 'you are my only hope' </h4>
-        <p>Move your player to collide with the Millinnium Falcon to save Chewy. Don't hit the solar flares!<br>
-        The space button will pause the game. Player 1 uses w-a-s-d keys, Player 2 uses the arrows.</p>
-        <button onclick="window.location.href ='gamePage.html'">Start Game</button>
+    <p id="leftSide">Player 2: <span id="p2ScoreDisp">?</span></p>
+    <p id="rightSide">Player 1: <span id="p1ScoreDisp">?</span></p>
+    <h2 class="centerText">Game Over!!!!</h2>
+    <div id="game">  
+        <button onclick="window.location.href ='gamePage.html'">New Game</button>
     </div>
 </body>
 
