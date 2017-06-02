@@ -8,12 +8,16 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script type="text/javascript">
+        // bring variables over from the previous page (gamepage)
         window.onload = function(){
             var p1 = window.location.hash.substring(1);
-            $("#p1ScoreDisp").text(p1);
-            var p2 = window.location.hash.substring(1);
-            $("#p2ScoreDisp").text(p2);
+            arr = p1.split("#");
+            $("#p1ScoreDisp").text(arr[0]);
+            $("#p2ScoreDisp").text(arr[1]);
+            if (arr[0]>arr[1]) {$("#winner").text('1');}
+            else {$("#winner").text('2');}
         }
+
     </script>
 <!--    out styles will be internal until we need to move them to an external file -->
     <style type="text/css">
@@ -24,9 +28,11 @@
             margin-right: auto;
             width: 800px;
             height: 500px;
-            background-color: lightblue;
+            background-color: black;
             border-radius: 10px;
             padding: 40px;
+            color: white;
+            font-size: 40px;
         }
         .centerText {text-align: center;}
          #leftSide {
@@ -46,7 +52,8 @@
     <p id="leftSide">Player 2: <span id="p2ScoreDisp">?</span></p>
     <p id="rightSide">Player 1: <span id="p1ScoreDisp">?</span></p>
     <h2 class="centerText">Game Over!!!!</h2>
-    <div id="game">  
+    <div id="game" class="centerText">  
+        <h3>Nice game, Player <span id='winner'>?</span></h3> 
         <button onclick="window.location.href ='gamePage.html'">New Game</button>
     </div>
 </body>
