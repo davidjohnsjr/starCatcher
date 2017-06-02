@@ -118,7 +118,13 @@ window.onload = function() {
     var background = new Image();
     background.src="images/bg.jpg";
 
+    // levels
     var level = 1;
+
+    // a new array is made to keep track of a button being held down
+    var keysDown = [];
+    var counter = 0;
+
 
 // our stars are created using a single array with a class of information
     function initArrays(Scount,Ccount) {
@@ -129,19 +135,26 @@ window.onload = function() {
         chewyTotal = 0;
 
         // Create an array of stars
-        for (var i = 0; i < starCount; i++) {
+        for (var i = 0; i < starCount/2; i++) {
             // this assigns each element in the array all the information for the star by 
             // using the 'star' class, pass the starting x,y locations 
             //  and speeds into the array.
-            starArray.push(star.create(20,i+2,3-Math.random()*6,2-Math.random()*5));
+            starArray.push(star.create(10+Math.random()*(w/2-100),10+Math.random()*(h-20),3-Math.random()*6,2-Math.random()*5));
+        }
+        for (var i = starCount/2; i < starCount; i++) {
+            // this assigns each element in the array all the information for the star by 
+            // using the 'star' class, pass the starting x,y locations 
+            //  and speeds into the array.
+            starArray.push(star.create(w/2+100+Math.random()*(w-20),10+Math.random()*(h-20),3-Math.random()*6,2-Math.random()*5));
         }
         // Create an array of stranded ships
         for (var i = 0; i < strandedShipCount; i++) {
             // this assigns each element in the array all the information for the star by 
             // using the 'star' class, pass the starting x,y locations 
             //  and speeds into the array.
-            strandedShipArray.push(strandedShip.create(20,i+150,3-Math.random()*6,2-Math.random()*5));
+            strandedShipArray.push(strandedShip.create(10+Math.random()*(w-20),10+Math.random()*(h-20),3-Math.random()*6,2-Math.random()*5));
         }
+        keysDown = [];
     } //close initArrays
     initArrays(20, 3);
     
@@ -154,6 +167,7 @@ window.onload = function() {
     var bgmusic = new Audio('sounds/roar.mp3');
     bgmusic.volume = .2;
     bgmusic.play();
+ 
      // play on first .9 seconds of an audio by checking
     // setInterval every 10 clicks.
     function playInterval (audioObj) {
@@ -199,7 +213,6 @@ window.onload = function() {
             starArray[k]._x = w +200;
             starArray[k]._xSpeed = 0;
             explode.play();
-            if (p1Score<-10) {window.location ='gameOver.html#'+p1Score+'#'+p2Score;}
         }
         else if (wp==2) {
             p2Score-=5;
@@ -208,6 +221,7 @@ window.onload = function() {
             starArray[k]._xSpeed = 0;
             explode.play();
         }
+        if (p1Score<-50 || p2Score<-50) {window.location ='gameOver.html#'+p1Score+'#'+p2Score;}
     } // end scoring function    
 
     function strandedShipUpdate () {
@@ -216,7 +230,12 @@ window.onload = function() {
         for (var i = 0; i < strandedShipCount; i++) {
             strandedShipArray[i].update();
             if (strandedShipArray[i].visible()) {
-                ctx.drawImage(strandedShipArray[i]._img, strandedShipArray[i]._x-strandedShipArray[i]._width/2, strandedShipArray[i]._y-strandedShipArray[i]._height/2, strandedShipArray[i]._width, strandedShipArray[i]._height);
+                // save the canvas, move canvas to ship location, rotate canvas and draw ship, restore canvas
+                ctx.save();
+                ctx.translate(strandedShipArray[i]._x,strandedShipArray[i]._y);
+                ctx.rotate(counter*Math.PI/180);
+                ctx.drawImage(strandedShipArray[i]._img, -strandedShipArray[i]._width/2, -strandedShipArray[i]._height/2, strandedShipArray[i]._width, strandedShipArray[i]._height);
+                ctx.restore();
             }
             if (strandedShipArray[i]._x>w) {strandedShipArray[i]._x = 0 }
             if (strandedShipArray[i]._x<0) {strandedShipArray[i]._x = w }
@@ -225,7 +244,7 @@ window.onload = function() {
             if (Math.abs(p1x-strandedShipArray[i]._x)<20 & Math.abs(p1y-strandedShipArray[i]._y)<20) {
                 playInterval(chewy);
                 strandedShipArray[i]._visible = false;
-                p1Score = p1Score +10;
+                p1Score = p1Score +40;
                 strandedShipArray[i]._x = w+200;
                 strandedShipArray[i]._xSpeed = 0;
                 $("#p1ScoreDisp").text(p1Score);  
@@ -233,7 +252,7 @@ window.onload = function() {
             }
             if (Math.abs(p2x-strandedShipArray[i]._x)<20 & Math.abs(p2y-strandedShipArray[i]._y)<20) {
                 strandedShipArray[i]._visible = false;
-                p2Score = p2Score +10;
+                p2Score = p2Score +40;
                 $("#p2ScoreDisp").text(p2Score);
                 strandedShipArray[i]._x = w+200;
                 strandedShipArray[i]._xSpeed = 0;
@@ -241,20 +260,21 @@ window.onload = function() {
             }
             if (chewyTotal==strandedShipCount) {
                 level++;
-                initArrays(20*level, 3*level)
+                if (level==4) {
+                    window.location='gameOver.html#'+p1Score+'#'+p2Score;
+                }
+                else {
+                    chewyTotal=0;
+                    gameOn = false;
+                    initArrays(20*level, 3*level); 
+                    setTimeout(nextLevel,500,level);
+                    d = new Date();
+                    milliStart = d.getTime();
+                }
             }
         }//endFor
-        if (chewyTotal==strandedShipCount) {
-            if (p1Score>p2Score) {alert("Player 1 has won. Are you ready for level 2?")}
-            else if (p1Score<p2Score) {alert("Player 2 has won. Are you ready for level 2?")}
-            else {alert("tie... ugh. Play level 2 to break the tie?")}
-            window.location="gamePage2.html";
-        }
     }  // close of strandedShip Update
         
-    // a new array is made to keep track of a button being held down
-    var keysDown = [];
-
     // if the key is held down, the keycode is placed in array
     // then it is deleted upon keyup command.  
     // playerUpdate will now control player movements and use the keysDown array
@@ -303,7 +323,12 @@ window.onload = function() {
             d = new Date();
             milliStart = d.getTime();
             level ++;
-            initArrays(20*level, 3*level);
+            if (level==4) {window.location='gameOver.html#'+p1Score+'#'+p2Score;}
+            else {
+                gameOn = false;
+                initArrays(20*level, 3*level); 
+                setTimeout(nextLevel,500,level);
+            }
         }
     }
     
@@ -372,11 +397,13 @@ window.onload = function() {
         ctx.drawImage(whichShip2, p2x-30, p2y-30, 60, 60);
     }  // close playerUpdate
 
+
        //Our main function which clears the screens 
     //  and redraws it all again through function updates,
     //  then calls itself out again
     
     function main(){
+        counter ++;
         ctx.clearRect(0,0,w,h);
         ctx.globalAlpha = .3;
         ctx.drawImage(background,0,0,w,h);
@@ -385,8 +412,19 @@ window.onload = function() {
         strandedShipUpdate();
         playerUpdate();
         timerUpdate();
-        if (gameOn==1) {requestAnimationFrame(main);}
+        if (gameOn) {requestAnimationFrame(main);}
+    }       
+    function nextLevel(l) {
+        var levelimg = new Image();
+        levelimg.src="images/level"+l+".png";
+        ctx.clearRect(0,0,w,h);
+        ctx.globalAlpha = .3;
+        ctx.drawImage(background,0,0,w,h);
+        ctx.globalAlpha = 1;
+        levelimg.onload = function() {ctx.drawImage(levelimg, w/2-50, h/2-50, 100, 100);}
+        gameOn = true;
+        setTimeout(main,1500);
     }
-    main();        
+    setTimeout(nextLevel,200,1);
 } // close   window onload             
                 
